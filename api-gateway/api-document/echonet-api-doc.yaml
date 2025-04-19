@@ -176,7 +176,7 @@ components:
           enum: [male, female, other]
         dob:
           type: string
-        avartar:
+        avatar:
           type: string
         fullname:
           type: string
