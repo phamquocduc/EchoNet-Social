@@ -1,40 +1,79 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { UserRepository } from '../user.repository';
 import { RoleRepository } from 'src/role/role.repository';
 import { ERole } from 'src/enum/role.enum';
 import { RoleCreateDto } from 'src/role/dto/role-create.dto';
-import { UserCreateDto } from '../dto/user-create.dto';
+import { UserAuthCreateDto } from '../dto/user-auth.dto';
+import { ClientProxy } from '@nestjs/microservices';
+import { ProfileCreateDto } from '../dto/profile-create.dto';
+import { profile } from 'console';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from 'src/role/role.entity';
+import { Repository } from 'typeorm';
+import { User } from '../user.entity';
 
 @Injectable()
 export class UserAdminServices implements OnModuleInit {
     constructor(
-        private readonly userRepository: UserRepository,
+        @Inject('PROFILE_SERVICE') private readonly profileService: ClientProxy,
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
         private readonly roleRepository: RoleRepository
-    ) {}
+    ) { }
 
     async onModuleInit() {
 
-        let role = await this.roleRepository.findAdminRole(ERole.ADMIN)
+        let roleAdmin = await this.roleRepository.findRoleNameExited(ERole.ADMIN)
+        let roleUser = await this.roleRepository.findRoleNameExited(ERole.USER)
 
-        const adminUser = await this.userRepository.findUserByRoleName(ERole.ADMIN)
+        const adminUser = await this.userRepository.findOne({
+            where: {
+                role: {
+                    roleName: ERole.ADMIN
+                }
+            }
+        })
 
-        const adminRole : RoleCreateDto = {
-            roleName: ERole.ADMIN
+        if (!roleAdmin) {
+            const adminRole: RoleCreateDto = {
+                roleName: ERole.ADMIN
+            }
+
+            roleAdmin = await this.roleRepository.createRole(adminRole)
         }
 
-        const admin : UserCreateDto = {
-            email: "admin123@gmail.com",
-            password: "admin123",
+        if (!roleUser) {
+            const userRole: RoleCreateDto = {
+                roleName: ERole.USER
+            }
+            roleUser = await this.roleRepository.createRole(userRole)
         }
 
-        if(!role){
-            role = await this.roleRepository.createRole(adminRole)
-        }
+        if (!adminUser) {
+            const admin: UserAuthCreateDto = {
+                email: "admin123@gmail.com",
+                password: "admin123",
+            }
 
-        if(!adminUser){
-            const adminUser = await this.userRepository.createUser(admin, role.id)
+            const newUser = this.userRepository.create({
+                ...admin,
+                isVerified: true,
+                role: {
+                    id: roleAdmin.id
+                }
+            })
+
+            const adminUser = await this.userRepository.save(newUser)
             console.log("Admin :", adminUser)
-        }else{
+
+            const adminProfile: ProfileCreateDto = {
+                userid: adminUser.id,
+                fullname: 'Admin',
+                gender: 'male',
+                dob: new Date('2000-01-01'),
+            }
+
+            this.profileService.emit({ cmd: 'create_profile' }, { profile: adminProfile })
+        } else {
             console.log("Admin :", adminUser)
         }
     }

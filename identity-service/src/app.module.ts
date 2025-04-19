@@ -13,28 +13,48 @@ import { UserService } from './user/user.service';
 import { UserRepository } from './user/user.repository';
 import { Role } from './role/role.entity';
 import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TransformInterceptor } from './interceptors/tranform.intercepter';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { RefreshTokenModule } from './refresh-token/refresh-token.module';
+import { RefreshToken } from './refresh-token/refresh-token.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot(
+      {
+        isGlobal: true,
+        envFilePath:
+          process.env.NODE_ENV === 'production'
+            ? '.env.production'
+            : '.env.local',
+      }
+    ),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.PG_HOST, 
-      port: Number(process.env.PG_PORT), 
+      host: process.env.PG_HOST,
+      port: Number(process.env.PG_PORT),
       username: process.env.PG_USER,
       password: process.env.PG_PASSWORD,
       database: process.env.PG_DATABASE,
       entities: [
         User,
-        Role
+        Role,
+        RefreshToken
       ],
       synchronize: true,
     }),
     AuthModule,
     UserModule,
     RoleModule,
+    RefreshTokenModule,
   ],
   controllers: [AppController, AuthController],
-  providers: [AppService, JwtService],
+  providers: [AppService, JwtService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor
+    }
+  ],
 })
-export class AppModule {}
+export class AppModule { }

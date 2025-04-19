@@ -1,0 +1,244 @@
+
+openapi: 3.0.0
+info:
+  title: EchoNet Auth API
+  description: API documentation for authentication, role management, and user management
+  version: 1.0.0
+
+paths:
+  /identity/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDto'
+      responses:
+        '200':
+          description: Successful login
+
+  /identity/role:
+    get:
+      tags:
+        - Role
+      summary: Get all roles (Admin only)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+
+  /identity/role/create:
+    post:
+      tags:
+        - Role
+      summary: Create a new role (Admin only)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleCreateDto'
+      responses:
+        '201':
+          description: Role created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+
+  /identity/user/create:
+    post:
+      tags:
+        - User
+      summary: Create new user (public)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateDto'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /identity/user/profile:
+    get:
+      tags:
+        - User
+      summary: Get profile of current user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+
+  /identity/user/update-profile:
+    put:
+      tags:
+        - User
+      summary: Update profile of current user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateDto'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: 'admin123@gmail.com'
+        password:
+          type: string
+          example: 'admin123'
+
+    RoleCreateDto:
+      type: object
+      properties:
+        name:
+          type: string
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    UserCreateDto:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        confirmPassword:
+          type: string
+        fullname:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        fullname:
+          type: string
+
+    Profile:
+      type: object
+      properties:
+        gender:
+          type: string
+          enum: [male, female, other]
+        dob:
+          type: string
+        avartar:
+          type: string
+        fullname:
+          type: string
+        coverphoto:
+          type: string
+          example: 'https://example.com/coverphoto.jpg'
+        phone:
+          type: string
+          example: '0123456789'
+        currentResidence:
+          type: string
+          example: 'Hanoi, Vietnam'
+        hometown:
+          type: string
+          example: 'Hanoi, Vietnam'
+        school:
+          type: string
+          example: 'Hanoi University'
+        workPlace:
+          type: string
+          example: 'Hanoi, Vietnam'
+        relationship:
+          type: string
+        id:
+          type: string
+        userid:
+          type: number
+
+    ProfileUpdateDto:
+      type: object
+      properties:
+        avatar:
+          type: string
+          example: 'https://example.com/avatar.jpg'
+        fullname:
+          type: string
+          example: 'Nguyen Van A'
+        dob:
+          type: string
+          format: date
+          example: '1990-01-01'
+        gender:
+          type: string
+          enum: [male, female, other]
+        coverphoto:
+          type: string
+          example: 'https://example.com/coverphoto.jpg'
+        phone:
+          type: string
+          example: '0123456789'
+        currentResidence:
+          type: string
+          example: 'Hanoi, Vietnam'
+        hometown:
+          type: string
+          example: 'Hanoi, Vietnam'
+        school:
+          type: string
+          example: 'Hanoi University'
+        workPlace:
+          type: string
+          example: 'Hanoi, Vietnam'
+        relationship:
+          type: string
+

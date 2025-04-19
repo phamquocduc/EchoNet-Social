@@ -1,0 +1,36 @@
+import { Module } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import { AuthGuard } from './auth.guard';
+import { APP_GUARD } from '@nestjs/core';
+
+@Module({
+    imports: [
+        ConfigModule.forRoot(
+            {
+                isGlobal: true,
+                envFilePath:
+                    process.env.NODE_ENV === 'production'
+                        ? '.env.production'
+                        : '.env.local',
+            }
+        ),
+        JwtModule.register({
+            global: true,
+            secret: process.env.SECRET_KEY_JWT,
+            signOptions: {
+                expiresIn: process.env.JWT_EXPIRES
+            }
+        })
+    ],
+    controllers: [],
+    providers: [
+        {
+            provide: APP_GUARD,
+            useClass: AuthGuard
+        },
+        AuthService],
+    exports: [AuthService]
+})
+export class AuthModule { }

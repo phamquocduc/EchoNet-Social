@@ -2,11 +2,23 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 import * as dotenv from 'dotenv';
+import { Transport } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
 
 dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  app.useGlobalPipes(new ValidationPipe())
+
+  app.connectMicroservice({
+    transport: Transport.TCP,
+    options: {
+      port: Number(process.env.PROFILE_TCP_PORT)
+    }
+  })
+
+  await app.startAllMicroservices();
+  await app.listen(process.env.PORT ?? 3002);
 }
 bootstrap();

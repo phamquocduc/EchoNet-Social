@@ -10,7 +10,7 @@ export class RoleRepository {
     constructor(
         @InjectRepository(Role)
         private readonly roleRepository: Repository<Role>
-    ) {}
+    ) { }
 
     async createRole(roleCreate: RoleCreateDto): Promise<Role> {
         const newRole = this.roleRepository.create(roleCreate)
@@ -29,14 +29,14 @@ export class RoleRepository {
             }
         })
 
-        if(!role){
+        if (!role) {
             throw new BadRequestException(`Role ${roleName} not found`)
         }
 
         return role
     }
 
-    async findAdminRole(roleName: ERole): Promise<Role | null> {
+    async findRoleNameExited(roleName: ERole): Promise<Role | null> {
         return await this.roleRepository.findOne({
             where: {
                 roleName: roleName

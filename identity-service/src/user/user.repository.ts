@@ -2,55 +2,71 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./user.entity";
 import { Repository } from "typeorm";
-import { UserCreateDto } from "./dto/user-create.dto";
+import { UserAuthCreateDto } from "./dto/user-auth.dto";
 import { ERole } from "src/enum/role.enum";
 import { Role } from "src/role/role.entity";
+import { RoleRepository } from "src/role/role.repository";
 
 @Injectable()
 export class UserRepository {
     constructor(
         @InjectRepository(User)
-        private readonly userRepository: Repository<User>
-    ) {}
+        private readonly userRepository: Repository<User>,
+        private readonly roleRepository: RoleRepository
+    ) { }
 
-    async createUser(userCreate: UserCreateDto, roleId: number): Promise<User> {
+    async createUser(userCreate: UserAuthCreateDto): Promise<User> {
+
+        const role = await this.roleRepository.findRoleByRoleName(ERole.USER)
+
         const newUser = this.userRepository.create({
             ...userCreate,
             role: {
-                id: roleId
+                id: role.id
             }
         })
 
         return await this.userRepository.save(newUser)
     }
 
-    async findUserByRoleName(roleName: ERole): Promise<User | null> {
+    async findUserByRoleName(roleName: string): Promise<User | null> {
         return await this.userRepository.findOne({
             where: {
-                role:{
+                role: {
                     roleName: roleName
                 }
             },
-            relations:{
+            relations: {
                 role: true
             }
         })
     }
 
-    async findOneByEmail(email: string): Promise<User> {
+    async findOneByEmail(email: string): Promise<User | null> {
         const user = await this.userRepository.findOne({
             where: {
                 email: email
             },
-            relations:{
+            relations: {
                 role: true
             }
         })
 
-        if(!user){
-            throw new BadRequestException(`User with email ${email} not found`)
+        return user
+    }
+
+    async updateUserisVerified(userId: number) {
+        let user = await this.userRepository.findOne({
+            where: {
+                id: userId
+            }
+        })
+
+        if (!user) {
+            throw new BadRequestException(`User not exist`)
         }
 
-        return user
+        Object.assign(user, { isVerified: true })
+        return await this.userRepository.save(user)
     }
 }
