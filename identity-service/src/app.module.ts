@@ -18,6 +18,8 @@ import { TransformInterceptor } from './interceptors/tranform.intercepter';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { RefreshToken } from './refresh-token/refresh-token.entity';
+import { VerifyEmailModule } from './verify-email/verify-email.module';
+import { VerifyEmail } from './verify-email/verify-email.entity';
 
 @Module({
   imports: [
@@ -40,7 +42,8 @@ import { RefreshToken } from './refresh-token/refresh-token.entity';
       entities: [
         User,
         Role,
-        RefreshToken
+        RefreshToken,
+        VerifyEmail
       ],
       synchronize: true,
     }),
@@ -48,6 +51,7 @@ import { RefreshToken } from './refresh-token/refresh-token.entity';
     UserModule,
     RoleModule,
     RefreshTokenModule,
+    VerifyEmailModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, JwtService,

@@ -52,6 +52,7 @@ export class UserAdminServices implements OnModuleInit {
             const admin: UserAuthCreateDto = {
                 email: "admin123@gmail.com",
                 password: "admin123",
+                fullName: "Admin",
             }
 
             const newUser = this.userRepository.create({

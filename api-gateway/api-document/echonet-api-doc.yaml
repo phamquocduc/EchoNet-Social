@@ -21,6 +21,21 @@ paths:
         '200':
           description: Successful login
 
+  /identity/auth/refresh-token:
+    post:
+      tags:
+        - Auth
+      summary: User Refresh Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequestDto'
+      responses:
+        '200':
+          description: Successful
+
   /identity/role:
     get:
       tags:
@@ -59,10 +74,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Role'
 
-  /identity/user/create:
+  /identity/auth/register:
     post:
       tags:
-        - User
+        - Auth
       summary: Create new user (public)
       requestBody:
         required: true
@@ -241,4 +256,11 @@ components:
           example: 'Hanoi, Vietnam'
         relationship:
           type: string
+
+    RefreshTokenRequestDto:
+      type: object
+      properties:
+        token:
+          type: string
+          example: 'your-refresh'
 

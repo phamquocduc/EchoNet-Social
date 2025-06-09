@@ -6,4 +6,7 @@ export class UserAuthCreateDto {
 
     @IsString()
     password: string;
+
+    @IsString()
+    fullName: string;
 }

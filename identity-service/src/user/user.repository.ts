@@ -55,10 +55,10 @@ export class UserRepository {
         return user
     }
 
-    async updateUserisVerified(userId: number) {
+    async updateUserisVerified(email: string) {
         let user = await this.userRepository.findOne({
             where: {
-                id: userId
+                email: email
             }
         })
 

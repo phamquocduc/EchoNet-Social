@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Inject, Injectable } from "@nestjs/common";
 import { JwtService } from '@nestjs/jwt';
 import { ValidatedTokenResponseDto } from "./dto/validated-token-response.dto";
 import { LoginRequestDto } from "./dto/login-request.dto";
@@ -9,12 +9,17 @@ import { randomUUID } from 'crypto';
 import { async } from "rxjs";
 import { RefreshTokenService } from "src/refresh-token/refresh-token.service";
 import { RefreshTokenCreateDto } from "src/refresh-token/dto/refresh-token-create.dto";
+import { RefreshToken } from "src/refresh-token/refresh-token.entity";
+import { DeviceInfoDto } from "./dto/device-infor.dto";
+import { ClientProxy } from "@nestjs/microservices";
+import { VerifyMailRequestDto } from "./dto/verify-mail-request.dto";
 
 @Injectable()
 export class AuthService {
     constructor(private jwtServices: JwtService,
         private readonly userRepository: UserRepository,
-        private readonly refreshTokenService: RefreshTokenService
+        private readonly refreshTokenService: RefreshTokenService,
+        @Inject('MAIL_SERVICE') private readonly mailClient: ClientProxy,
     ) { }
 
     async validateToken(token: string): Promise<ValidatedTokenResponseDto> {
@@ -49,7 +54,7 @@ export class AuthService {
     }
 
 
-    async login(loginRequestDto: LoginRequestDto, deviceInfo: any): Promise<{ access_token: string, refresh_token: string }> {
+    async login(loginRequestDto: LoginRequestDto, deviceInfo: DeviceInfoDto): Promise<{ access_token: string, refresh_token: string }> {
 
         const { email, password } = loginRequestDto;
 
@@ -73,9 +78,24 @@ export class AuthService {
         }
     }
 
+    async verifyEmail(verifyEmailDto: VerifyMailRequestDto): Promise<void> {
+        this.mailClient.emit('mail.send.verify', verifyEmailDto)
+    }
+
+    async refreshToken(refreshToken: string, user: User, currentRefreshToken: RefreshToken): Promise<{ access_token: string, refresh_token: string }> {
+        return {
+            access_token: await this.generateToken(user),
+            refresh_token: await this.refreshTokenService.renewRefreshToken(refreshToken, currentRefreshToken)
+        }
+    }
+
     async generateToken(user: User): Promise<string> {
         const payload = { sub: user.id, userEmail: user.email, role: user.role.roleName }
 
         return await this.jwtServices.signAsync(payload)
+    }
+
+    generateVerifyCode(): string {
+        return Math.floor(100000 + Math.random() * 900000).toString();
     }
 }

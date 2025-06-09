@@ -10,12 +10,6 @@ import { ProfileUpdateDto } from "./dto/profile-update.dto";
 export class UserController {
     constructor(private readonly userService: UserService) { }
 
-    @Post('create')
-    @Public()
-    async create(@Body() userCreation: UserCreateDto): Promise<User> {
-        return await this.userService.createUser(userCreation)
-    }
-
     @Get('profile')
     async userGetProfile(@Req() request: Request) {
         const userId = request['user'].sub

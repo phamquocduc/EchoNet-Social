@@ -10,6 +10,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthExternalController } from './external-controller/auth-external.controller';
 import { GoogleStrategy } from './google/google.strategy';
 import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { VerifyEmailModule } from 'src/verify-email/verify-email.module';
 
 @Module({
     imports: [
@@ -23,6 +25,7 @@ import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
             }
         ),
         forwardRef(() => RefreshTokenModule),
+        VerifyEmailModule,
         UserModule,
         RoleModule,
         JwtModule.register({
@@ -31,7 +34,20 @@ import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
             signOptions: {
                 expiresIn: process.env.JWT_EXPIRES
             }
-        })
+        }),
+        ClientsModule.register([
+            {
+                name: 'MAIL_SERVICE',
+                transport: Transport.RMQ,
+                options: {
+                    urls: ['amqp://localhost:5672'],
+                    queue: 'mail_queue',
+                    queueOptions: {
+                        durable: false
+                    },
+                },
+            },
+        ]),
     ],
     controllers: [AuthController, AuthExternalController],
     providers: [

@@ -10,8 +10,9 @@ export class AuthMiddleware implements NestMiddleware {
   private publicRoutes = [
     '/auth/login',
     '/auth/google',
+    '/auth/refresh-token',
     '/auth/google/redirect',
-    '/user/create',
+    '/auth/register',
   ];
 
   constructor(

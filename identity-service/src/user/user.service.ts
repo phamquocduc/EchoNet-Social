@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { UserAuthCreateDto } from './dto/user-auth.dto';
 import { User } from './user.entity';
@@ -29,25 +29,35 @@ export class UserService {
         const user: UserAuthCreateDto = {
             email: userCreate.email,
             password: userCreate.password,
+            fullName: userCreate.fullname
         }
 
         const newUser = await this.userRepository.createUser(user)
 
-        const profile: ProfileCreateDto = {
-            userid: newUser.id,
-            fullname: userCreate.fullname,
-        }
-
-        this.profileService.emit({ cmd: 'create_profile' }, { profile })
         return newUser
     }
 
-    async userGetByEmail(email: string): Promise<User | null> {
-        return await this.userRepository.findOneByEmail(email)
+    async defaulProfile(userId: number, fullname: string): Promise<void> {
+        const profile: ProfileCreateDto = {
+            userid: userId,
+            fullname: fullname,
+        }
+
+        this.profileService.emit({ cmd: 'create_profile' }, { profile })
     }
 
-    async updateUserisVerified(userId: number) {
-        await this.userRepository.updateUserisVerified(userId)
+    async userGetByEmail(email: string): Promise<User> {
+        const user = await this.userRepository.findOneByEmail(email)
+
+        if (!user) {
+            throw new BadRequestException('User not found')
+        }
+
+        return user
+    }
+
+    async updateUserisVerified(email: string) {
+        await this.userRepository.updateUserisVerified(email)
     }
 
     async userGetProfile(userId: number) {
