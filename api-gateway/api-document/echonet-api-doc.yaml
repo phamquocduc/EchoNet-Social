@@ -108,6 +108,21 @@ paths:
         '400':
           description: New password and confirm password do not match
 
+  /identity/auth/change-password:
+    post:
+      tags:
+        - Auth
+      summary: change password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordDto'
+      responses:
+        '200':
+          description: Change password successfully
+
   /identity/role:
     get:
       tags:
@@ -347,6 +362,16 @@ components:
       type: object
       properties:
         token:
+          type: string
+        newPassword:
+          type: string
+        confirmNewPassword:
+          type: string
+
+    ChangePasswordDto:
+      type: object
+      properties:
+        oldPassword:
           type: string
         newPassword:
           type: string
