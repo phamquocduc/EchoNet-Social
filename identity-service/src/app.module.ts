@@ -2,24 +2,22 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
-import { UserService } from './user/user.service';
-import { UserRepository } from './user/user.repository';
 import { Role } from './role/role.entity';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TransformInterceptor } from './interceptors/tranform.intercepter';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { RefreshToken } from './refresh-token/refresh-token.entity';
 import { VerifyEmailModule } from './verify-email/verify-email.module';
 import { VerifyEmail } from './verify-email/verify-email.entity';
+import { ForgotPasswordVerifyModule } from './forgot-password-verify/forgot-password-verify.module';
+import { ForgotPasswordVerify } from './forgot-password-verify/forgot-password-verify.entity';
 
 @Module({
   imports: [
@@ -43,7 +41,8 @@ import { VerifyEmail } from './verify-email/verify-email.entity';
         User,
         Role,
         RefreshToken,
-        VerifyEmail
+        VerifyEmail,
+        ForgotPasswordVerify
       ],
       synchronize: true,
     }),
@@ -52,6 +51,7 @@ import { VerifyEmail } from './verify-email/verify-email.entity';
     RoleModule,
     RefreshTokenModule,
     VerifyEmailModule,
+    ForgotPasswordVerifyModule
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, JwtService,

@@ -15,4 +15,15 @@ export class VerifyMailService {
             },
         });
     }
+
+    async sendLinkForgotPassword(to: string, link: string) {
+        await this.mailerService.sendMail({
+            to,
+            subject: 'Reset Your Password',
+            template: 'forgot-password',
+            context: {
+                link,
+            },
+        });
+    }
 }

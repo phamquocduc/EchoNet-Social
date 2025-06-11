@@ -12,6 +12,7 @@ import { GoogleStrategy } from './google/google.strategy';
 import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { VerifyEmailModule } from 'src/verify-email/verify-email.module';
+import { ForgotPasswordVerifyModule } from 'src/forgot-password-verify/forgot-password-verify.module';
 
 @Module({
     imports: [
@@ -28,6 +29,7 @@ import { VerifyEmailModule } from 'src/verify-email/verify-email.module';
         VerifyEmailModule,
         UserModule,
         RoleModule,
+        ForgotPasswordVerifyModule,
         JwtModule.register({
             global: true,
             secret: process.env.SECRET_KEY_JWT,

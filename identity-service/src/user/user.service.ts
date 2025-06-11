@@ -9,6 +9,7 @@ import { UserCreateDto } from './dto/user-create.dto';
 import { ProfileCreateDto } from './dto/profile-create.dto';
 import { firstValueFrom } from 'rxjs';
 import { ProfileUpdateDto } from './dto/profile-update.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -66,6 +67,11 @@ export class UserService {
         )
 
         return profile
+    }
+
+    async userResetPassword(email: string, newPassword: string): Promise<void> {
+        const hashPassword = await bcrypt.hash(newPassword, 10)
+        await this.userRepository.userResetPassword(email, hashPassword)
     }
 
     async userUpdateProfile(userId: number, profile: ProfileUpdateDto) {

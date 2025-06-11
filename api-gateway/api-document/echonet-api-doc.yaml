@@ -36,6 +36,78 @@ paths:
         '200':
           description: Successful
 
+  /identity/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Create new user (public)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateDto'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /identity/auth/verify-email:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyMailRequestDto'
+      responses:
+        '201':
+          description: Email verified successfully
+
+  /identity/auth/forgot-password/{email}:
+    post:
+      tags:
+        - Auth
+      summary: Send forgot password link to user's email
+      description: Gửi link đặt lại mật khẩu về email người dùng.
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+          example: user@example.com
+      responses:
+        '201':
+          description: Forgot password link sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgotPasswordVerify'
+
+  /identity/auth/reset-password:
+    post:
+      tags:
+        - Auth
+      summary: Reset password with token
+      description: Đặt lại mật khẩu mới bằng token từ email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordDto'
+      responses:
+        '200':
+          description: Password reset successfully
+        '400':
+          description: New password and confirm password do not match
+
   /identity/role:
     get:
       tags:
@@ -73,25 +145,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Role'
-
-  /identity/auth/register:
-    post:
-      tags:
-        - Auth
-      summary: Create new user (public)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserCreateDto'
-      responses:
-        '201':
-          description: User created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
 
   /identity/user/profile:
     get:
@@ -263,4 +316,39 @@ components:
         token:
           type: string
           example: 'your-refresh'
+    
+    VerifyMailRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: 'abc@gmail.com'
+        code:
+          type: string
+          example: '123456'
 
+    ForgotPasswordVerify:
+      type: object
+      properties:
+        email:
+          type: string
+        token:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        used:
+          type: boolean
+
+    ResetPasswordDto:
+      type: object
+      properties:
+        token:
+          type: string
+        newPassword:
+          type: string
+        confirmNewPassword:
+          type: string

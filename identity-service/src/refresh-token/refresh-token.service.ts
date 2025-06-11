@@ -12,12 +12,12 @@ export class RefreshTokenService {
         private readonly refreshTokenRepository: RefreshTokenRepository,
     ) { }
 
-    generateRefreshTokenUUID(): string {
+    generateTokenUUID(): string {
         return randomUUID()
     }
 
     async createRefreshToken(userId: number, deviceInfo: DeviceInfoDto): Promise<RefreshToken> {
-        const refreshTokenUUID = this.generateRefreshTokenUUID();
+        const refreshTokenUUID = this.generateTokenUUID();
 
         const userTokens = await this.refreshTokenRepository.findTokensByUserId(userId);
 
@@ -39,7 +39,7 @@ export class RefreshTokenService {
     }
 
     async renewRefreshToken(token: string, currentRefreshToken: RefreshToken): Promise<string> {
-        const refreshTokenUUID = this.generateRefreshTokenUUID();
+        const refreshTokenUUID = this.generateTokenUUID();
 
         const refreshTokenCreateDto: RefreshTokenCreateDto = {
             token: refreshTokenUUID,

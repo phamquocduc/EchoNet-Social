@@ -15,11 +15,14 @@ export class VerifyEmailRepository {
         return await this.verifyEmailRepository.save(newVerifyEmail);
     }
 
-    async findVerifyEmailByEmail(email: string): Promise<VerifyEmail> {
+    async findLastestVerifyEmailByEmail(email: string): Promise<VerifyEmail> {
         const verifyEmail = await this.verifyEmailRepository.findOne({
             where: {
                 email: email,
                 used: false
+            },
+            order: {
+                createdAt: "DESC"
             }
         })
 

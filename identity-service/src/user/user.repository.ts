@@ -69,4 +69,20 @@ export class UserRepository {
         Object.assign(user, { isVerified: true })
         return await this.userRepository.save(user)
     }
+
+    async userResetPassword(email: string, newPassword: string): Promise<User> {
+        let user = await this.userRepository.findOne({
+            where: {
+                email: email,
+                isVerified: true
+            }
+        })
+
+        if (!user) {
+            throw new BadRequestException(`User not exist`)
+        }
+
+        Object.assign(user, { password: newPassword })
+        return await this.userRepository.save(user)
+    }
 }

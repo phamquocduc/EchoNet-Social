@@ -13,6 +13,7 @@ import { RefreshToken } from "src/refresh-token/refresh-token.entity";
 import { DeviceInfoDto } from "./dto/device-infor.dto";
 import { ClientProxy } from "@nestjs/microservices";
 import { VerifyMailRequestDto } from "./dto/verify-mail-request.dto";
+import { ForgotPasswordRequestDto } from "./dto/send-forgot-password.dto";
 
 @Injectable()
 export class AuthService {
@@ -80,6 +81,10 @@ export class AuthService {
 
     async verifyEmail(verifyEmailDto: VerifyMailRequestDto): Promise<void> {
         this.mailClient.emit('mail.send.verify', verifyEmailDto)
+    }
+
+    async sendForgotPassword(forgotPasswordDto: ForgotPasswordRequestDto): Promise<void> {
+        this.mailClient.emit('mail.send.forgot-password', forgotPasswordDto)
     }
 
     async refreshToken(refreshToken: string, user: User, currentRefreshToken: RefreshToken): Promise<{ access_token: string, refresh_token: string }> {

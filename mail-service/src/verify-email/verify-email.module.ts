@@ -4,7 +4,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { VerifyMailService } from './verify-mail.service';
-import { VerifyEmailController } from './verify-email.controller';
+import { VerifyEmailController } from './external-controller/verify-email.controller';
 
 @Module({
     imports: [

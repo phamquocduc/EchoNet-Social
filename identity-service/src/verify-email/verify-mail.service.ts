@@ -13,8 +13,8 @@ export class VerifyMailService {
         return await this.verifyMailRepository.createVerifyEmail(verifyMailDto);
     }
 
-    async findVerifyEmailByEmail(email: string): Promise<VerifyEmail> {
-        return await this.verifyMailRepository.findVerifyEmailByEmail(email);
+    async findLastestVerifyEmailByEmail(email: string): Promise<VerifyEmail> {
+        return await this.verifyMailRepository.findLastestVerifyEmailByEmail(email);
     }
 
     async updateVerifyEmail(verifyEmailId: number): Promise<void> {

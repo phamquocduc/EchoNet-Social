@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Inject, Post, Req, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Inject, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { LoginRequestDto } from "./dto/login-request.dto";
 import { Public } from "./decorators/isPublic.decorator";
@@ -16,6 +16,11 @@ import { VerifyMailDto } from "src/verify-email/dto/verify-mail.dto";
 import { VerifyMailService } from "src/verify-email/verify-mail.service";
 import { VerifyEmail } from "src/verify-email/verify-email.entity";
 import { VerifyMailRequestDto } from "./dto/verify-mail-request.dto";
+import { ForgotPasswordVerifyDto } from "src/forgot-password-verify/dto/verify-mail.dto";
+import { ForgotPasswordService } from "src/forgot-password-verify/forgot-password-verify.service";
+import { ForgotPasswordRequestDto } from "./dto/send-forgot-password.dto";
+import { ForgotPasswordVerify } from "src/forgot-password-verify/forgot-password-verify.entity";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -23,6 +28,7 @@ export class AuthController {
         private readonly userService: UserService,
         private readonly refreshTokenService: RefreshTokenService,
         private readonly verifyMailService: VerifyMailService,
+        private readonly forgotPasswordService: ForgotPasswordService,
     ) { }
 
     @Public()
@@ -39,6 +45,49 @@ export class AuthController {
         console.log('Device Info:', deviceInfo);
 
         return await this.authServices.login(loginRequestDto, deviceInfo);
+    }
+
+    @Post('forgot-password/:email')
+    @Public()
+    async forgotPassword(@Param('email') email: string): Promise<ForgotPasswordVerify> {
+
+        const user = await this.userService.userGetByEmail(email);
+
+        const DateNow = new Date(Date.now())
+
+        const ForgotPasswordEntity: ForgotPasswordVerifyDto = {
+            email: user.email,
+            token: this.refreshTokenService.generateTokenUUID(),
+            createdAt: DateNow,
+            expiresAt: new Date(DateNow.getTime() + 2 * 60 * 1000),
+            used: false,
+        }
+
+        const forgotPassword = await this.forgotPasswordService.createForgotPassword(ForgotPasswordEntity)
+
+        const sendforgotPasswordDto: ForgotPasswordRequestDto = {
+            email: forgotPassword.email,
+            link: `${process.env.FRONTEND_URL_FORGOT_PASSWORD}?token=${forgotPassword.token}`,
+        }
+
+        await this.authServices.sendForgotPassword(sendforgotPasswordDto)
+
+        return forgotPassword;
+    }
+
+    @Post('reset-password')
+    @Public()
+    async resetPassword(@Body() restPasswordDto: ResetPasswordDto): Promise<void> {
+
+        const forgotPassword = await this.forgotPasswordService.findLastestForgotPasswordByToken(restPasswordDto.token);
+
+        await this.forgotPasswordService.updateForgotPassword(forgotPassword.id);
+
+        if (restPasswordDto.newPassword !== restPasswordDto.confirmNewPassword) {
+            throw new BadRequestException('New password and confirm password do not match');
+        }
+
+        await this.userService.userResetPassword(forgotPassword.email, restPasswordDto.newPassword);
     }
 
     @Post('register')
@@ -66,6 +115,32 @@ export class AuthController {
         return await this.verifyMailService.createVerifyEmail(verifyEmailEntity)
     }
 
+    @Post('resend-verify-email')
+    @Public()
+    async resendVerifyEmail(@Body() verifyMailReqDto: VerifyMailRequestDto): Promise<VerifyEmail> {
+        const DateNow = new Date(Date.now())
+
+        const verifyMail = await this.verifyMailService.findLastestVerifyEmailByEmail(verifyMailReqDto.email)
+        if (verifyMail) {
+            if (verifyMail.used === true) {
+                throw new BadRequestException('Email already verified')
+            }
+            if (verifyMail.expiresAt > DateNow) {
+                throw new BadRequestException('Code not expired yet')
+            }
+        }
+
+        const verifyEmailEntity: VerifyMailDto = {
+            email: verifyMailReqDto.email,
+            code: this.authServices.generateVerifyCode(),
+            createdAt: DateNow,
+            expiresAt: new Date(DateNow.getTime() + 2 * 60 * 1000),
+            used: false,
+        }
+
+        return await this.verifyMailService.createVerifyEmail(verifyEmailEntity)
+    }
+
     @Post('verify-email')
     @Public()
     async verifycode(@Req() req: Request, @Body() verifyMailReqDto: VerifyMailRequestDto): Promise<{ access_token: string, refresh_token: string }> {
@@ -80,7 +155,7 @@ export class AuthController {
 
         const DateNow = new Date(Date.now())
 
-        const verifyMail = await this.verifyMailService.findVerifyEmailByEmail(verifyMailReqDto.email)
+        const verifyMail = await this.verifyMailService.findLastestVerifyEmailByEmail(verifyMailReqDto.email)
         if (verifyMail.code !== verifyMailReqDto.code) {
             throw new BadRequestException('Invalid code')
         } else {

@@ -13,6 +13,9 @@ export class AuthMiddleware implements NestMiddleware {
     '/auth/refresh-token',
     '/auth/google/redirect',
     '/auth/register',
+    '/auth/verify-email',
+    '/auth/forgot-password/:email',
+    '/auth/reset-password',
   ];
 
   constructor(
@@ -22,7 +25,14 @@ export class AuthMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
 
-    if (this.publicRoutes.includes(req.path)) {
+    const isPublic =
+      this.publicRoutes.some(route =>
+        route.includes(':email')
+          ? /^\/auth\/forgot-password\/[^/]+$/.test(req.path)
+          : req.path === route
+      );
+
+    if (isPublic) {
       return next();
     }
 
