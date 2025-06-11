@@ -14,6 +14,7 @@ import { DeviceInfoDto } from "./dto/device-infor.dto";
 import { ClientProxy } from "@nestjs/microservices";
 import { VerifyMailRequestDto } from "./dto/verify-mail-request.dto";
 import { ForgotPasswordRequestDto } from "./dto/send-forgot-password.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 
 @Injectable()
 export class AuthService {
@@ -85,6 +86,29 @@ export class AuthService {
 
     async sendForgotPassword(forgotPasswordDto: ForgotPasswordRequestDto): Promise<void> {
         this.mailClient.emit('mail.send.forgot-password', forgotPasswordDto)
+    }
+
+    async changePassword(email: string, changePasswordDto: ChangePasswordDto): Promise<void> {
+        const { oldPassword, newPassword, confirmNewPassword } = changePasswordDto;
+
+        if (newPassword !== confirmNewPassword) {
+            throw new BadRequestException('New password and confirm new password do not match');
+        }
+
+        const user = await this.userRepository.findOneByEmail(email);
+
+        if (!user) {
+            throw new BadRequestException(`User with email ${email} not found`);
+        }
+
+        const valid = await bcrypt.compare(oldPassword, user.password);
+
+        if (!valid) {
+            throw new BadRequestException('Old password is incorrect');
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        await this.userRepository.userResetPassword(email, hashedNewPassword);
     }
 
     async refreshToken(refreshToken: string, user: User, currentRefreshToken: RefreshToken): Promise<{ access_token: string, refresh_token: string }> {

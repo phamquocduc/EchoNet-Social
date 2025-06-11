@@ -21,6 +21,7 @@ import { ForgotPasswordService } from "src/forgot-password-verify/forgot-passwor
 import { ForgotPasswordRequestDto } from "./dto/send-forgot-password.dto";
 import { ForgotPasswordVerify } from "src/forgot-password-verify/forgot-password-verify.entity";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -45,6 +46,13 @@ export class AuthController {
         console.log('Device Info:', deviceInfo);
 
         return await this.authServices.login(loginRequestDto, deviceInfo);
+    }
+
+    @Post('change-password')
+    async changePassword(@Req() request: Request, @Body() changePasswordDto: ChangePasswordDto): Promise<void> {
+        const userEmail = request['user'].userEmail
+
+        await this.authServices.changePassword(userEmail, changePasswordDto);
     }
 
     @Post('forgot-password/:email')
