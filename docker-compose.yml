@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Service
+  # PostgreSQL Service for Identity Service
   postgres:
     image: postgres:16
     container_name: identity_postgres
-    restart: always
+    #restart: always
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -15,11 +15,25 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  # PostgreSQL Service for Post Service
+  post_postgres:
+    image: postgres:16
+    container_name: post_postgres
+    #restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: post_service
+    ports:
+      - "5433:5432"  
+    volumes:
+      - post_postgres_data:/var/lib/postgresql/data
+
   # Neo4j Service
   neo4j:
     image: neo4j:5
     container_name: profile_neo4j
-    restart: always
+    #restart: always
     environment:
       NEO4J_AUTH: neo4j/neo4j_profile  
       NEO4J_dbms_default__database: neo4jprofile
@@ -39,6 +53,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  post_postgres_data:
     driver: local
   neo4j_data:
     driver: local

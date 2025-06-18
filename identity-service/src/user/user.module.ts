@@ -6,7 +6,6 @@ import { UserRepository } from './user.repository';
 import { RoleModule } from 'src/role/role.module';
 import { UserAdminServices } from './admin/admin.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { UserController } from './user.controller';
 
 @Module({
   imports: [
@@ -22,7 +21,7 @@ import { UserController } from './user.controller';
       }
     ]),
   ],
-  controllers: [UserController],
+  controllers: [],
   providers: [UserService, UserRepository, UserAdminServices],
   exports: [UserService, UserRepository]
 })

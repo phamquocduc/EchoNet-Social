@@ -61,20 +61,8 @@ export class UserService {
         await this.userRepository.updateUserisVerified(email)
     }
 
-    async userGetProfile(userId: number) {
-        const profile = await firstValueFrom(
-            this.profileService.send({ cmd: 'get_profile' }, { userId })
-        )
-
-        return profile
-    }
-
     async userResetPassword(email: string, newPassword: string): Promise<void> {
         const hashPassword = await bcrypt.hash(newPassword, 10)
         await this.userRepository.userResetPassword(email, hashPassword)
-    }
-
-    async userUpdateProfile(userId: number, profile: ProfileUpdateDto) {
-        return await firstValueFrom(this.profileService.send({ cmd: 'update_profile' }, { userId, profile }))
     }
 }

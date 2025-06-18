@@ -13,16 +13,4 @@ export class ProfileExternalController {
         console.log('create_profile', data);
         await this.profileServices.createProfile(data.profile);
     }
-
-    @MessagePattern({ cmd: 'get_profile' })
-    async getProfile(data: { userId: number }): Promise<any> {
-        console.log('get_profile', data);
-        return await this.profileServices.findProfileByUserId(data.userId);
-    }
-
-    @MessagePattern({ cmd: 'update_profile' })
-    async updateProfile(data: { userId: number, profile: ProfileUpdateDto }): Promise<any> {
-        console.log('update_profile', data);
-        return await this.profileServices.updateProfile(data.userId, data.profile);
-    }
 }

@@ -8,6 +8,7 @@ import { ProfileModule } from './profile/profile.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { TransformInterceptor } from './interceptors/tranform.intercepter';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { TransformInterceptor } from './interceptors/tranform.intercepter';
       }),
     }),
     AuthModule,
-    ProfileModule
+    ProfileModule,
+    CloudinaryModule
   ],
   controllers: [AppController],
   providers: [AppService, JwtService,
