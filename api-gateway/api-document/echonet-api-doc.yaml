@@ -161,10 +161,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Role'
 
-  /identity/user/profile:
+  /profile:
     get:
       tags:
-        - User
+        - Profile
       summary: Get profile of current user
       security:
         - BearerAuth: []
@@ -176,10 +176,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Profile'
 
-  /identity/user/update-profile:
+  /profile/update-profile:
     put:
       tags:
-        - User
+        - Profile
       summary: Update profile of current user
       security:
         - BearerAuth: []
@@ -196,6 +196,68 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
+
+  /profile/update/avatar:
+    put:
+      tags:
+        - Profile
+      summary: Update user avatar
+      description: Uploads and updates the avatar image for the current user.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Avatar image file (JPG/PNG/WEBP)
+      responses:
+        '200':
+          description: Avatar updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '400':
+          description: No file provided or invalid file type
+        '500':
+          description: Internal server error
+
+  /profile/update/cover-photo:
+    put:
+      tags:
+        - Profile
+      summary: Update user cover photo
+      description: Uploads and updates the cover photo for the current user.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Cover photo file (JPG/PNG/WEBP)
+      responses:
+        '200':
+          description: Cover photo updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '400':
+          description: No file provided or invalid file type
+        '500':
+          description: Internal server error
 
 
 components:
