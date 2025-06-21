@@ -5,10 +5,17 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TransformInterceptor } from './interceptors/tranform.intercepter';
 import { AuthModule } from './auth/auth.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { PostModule } from './post/post.module';
+import { ReactionModule } from './reaction/reaction.module';
+import { CommentModule } from './comment/comment.module';
+import { Post } from './post/post.entity';
+import { Comment } from './comment/comment.entity';
+import { Reaction } from './reaction/reaction.entity';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
-    AuthModule,
     ConfigModule.forRoot(
       {
         isGlobal: true,
@@ -18,6 +25,25 @@ import { AuthModule } from './auth/auth.module';
             : '.env.local',
       }
     ),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.PG_HOST,
+      port: Number(process.env.PG_PORT),
+      username: process.env.PG_USER,
+      password: process.env.PG_PASSWORD,
+      database: process.env.PG_DB,
+      entities: [
+        Post,
+        Comment,
+        Reaction
+      ],
+      synchronize: true,
+    }),
+    AuthModule,
+    PostModule,
+    ReactionModule,
+    CommentModule,
+    CloudinaryModule
   ],
   controllers: [AppController],
   providers: [AppService,

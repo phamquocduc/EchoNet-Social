@@ -46,6 +46,10 @@ export class ProfileCreateDto {
     @IsOptional()
     relationship?: string;
 
+    @IsString()
+    @IsOptional()
+    profileType?: string;
+
     @IsNumber()
     userid: Number;
 }

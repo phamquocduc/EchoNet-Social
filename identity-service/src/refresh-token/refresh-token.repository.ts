@@ -9,7 +9,7 @@ export class RefreshTokenRepository {
     constructor(@InjectRepository(RefreshToken) private readonly refreshTokenRepository: Repository<RefreshToken>) { }
 
     async createRefreshToken(userId: number, refreshTokenDto: RefreshTokenCreateDto): Promise<RefreshToken> {
-        const refreshToken = this.refreshTokenRepository.create(refreshTokenDto);
+        const refreshToken = this.refreshTokenRepository.create({ user: { id: userId }, ...refreshTokenDto });
         return await this.refreshTokenRepository.save(refreshToken);
     }
 

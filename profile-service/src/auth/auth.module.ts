@@ -4,6 +4,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { AuthGuard } from './auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
     imports: [
@@ -22,7 +23,16 @@ import { APP_GUARD } from '@nestjs/core';
             signOptions: {
                 expiresIn: process.env.JWT_EXPIRES
             }
-        })
+        }),
+        ClientsModule.register([
+            {
+                name: 'IDENTITY_SERVICE',
+                transport: Transport.TCP,
+                options: {
+                    port: Number(process.env.IDENTITY_TCP_PORT)
+                }
+            }
+        ])
     ],
     controllers: [],
     providers: [

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ForgotPasswordVerify } from "./forgot-password-verify.entity";
-import { ForgotPasswordVerifyDto } from "./dto/verify-mail.dto";
+import { ForgotPasswordVerifyDto } from "./dto/forgot-pass-verify.dto";
 
 @Injectable()
 export class ForgotPasswordRepository {

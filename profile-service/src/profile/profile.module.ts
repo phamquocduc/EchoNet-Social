@@ -4,13 +4,17 @@ import { ProfileExternalController } from './external-controller/profile-externa
 import { Neo4jModule, Neo4jService } from 'nest-neo4j/dist';
 import { ProfileServiceOnInit } from './profile-oninit.service';
 import { ProfileController } from './profile.controller';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { FriendshipController } from './profile-friendship.controller';
 
 @Module({
     imports: [
+        CloudinaryModule,
     ],
     controllers: [
         ProfileExternalController,
-        ProfileController
+        ProfileController,
+        FriendshipController
     ],
     providers: [
         ProfileService,

@@ -16,19 +16,23 @@ const imageUploadInterceptor = FileInterceptor('file', {
     },
 });
 
-@Controller('profile')
+@Controller('personal')
 export class ProfileController {
     constructor(private readonly profileService: ProfileService,
         private readonly cloudinarySevices: CloudinaryService,
     ) { }
 
     @Get()
-    async getProfile(userId: number) {
+    async getProfile(@Req() req: Request): Promise<Profile> {
+        const userId = req['user'].sub;
+        console.log('userid:', userId);
+
         return await this.profileService.findProfileByUserId(userId);
     }
 
-    @Put('update')
-    async updateProfile(userId: number, profileUpdateDto: ProfileUpdateDto) {
+    @Put('update-profile')
+    async updateProfile(@Req() req: Request, profileUpdateDto: ProfileUpdateDto): Promise<Profile> {
+        const userId = req['user'].sub;
         return await this.profileService.updateProfile(userId, profileUpdateDto);
     }
 
@@ -36,7 +40,7 @@ export class ProfileController {
     @UseInterceptors(imageUploadInterceptor)
     async updateAvatar(
         @UploadedFile() file: Express.Multer.File,
-        @Req() req: any
+        @Req() req: Request
     ): Promise<Profile> {
         const userId = req['user'].sub;
         console.log(file);
@@ -72,7 +76,7 @@ export class ProfileController {
     @UseInterceptors(imageUploadInterceptor)
     async updateCoverPhoto(
         @UploadedFile() file: Express.Multer.File,
-        @Req() req: any
+        @Req() req: Request
     ): Promise<Profile> {
         const userId = req['user'].sub;
         console.log(file);

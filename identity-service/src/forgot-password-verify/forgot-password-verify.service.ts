@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ForgotPasswordRepository } from "./fotgot-password-verify.repository";
-import { ForgotPasswordVerifyDto } from "./dto/verify-mail.dto";
+import { ForgotPasswordVerifyDto } from "./dto/forgot-pass-verify.dto";
 import { ForgotPasswordVerify } from "./forgot-password-verify.entity";
 
 @Injectable()

@@ -16,12 +16,13 @@ import { VerifyMailDto } from "src/verify-email/dto/verify-mail.dto";
 import { VerifyMailService } from "src/verify-email/verify-mail.service";
 import { VerifyEmail } from "src/verify-email/verify-email.entity";
 import { VerifyMailRequestDto } from "./dto/verify-mail-request.dto";
-import { ForgotPasswordVerifyDto } from "src/forgot-password-verify/dto/verify-mail.dto";
+import { ForgotPasswordVerifyDto } from "src/forgot-password-verify/dto/forgot-pass-verify.dto";
 import { ForgotPasswordService } from "src/forgot-password-verify/forgot-password-verify.service";
 import { ForgotPasswordRequestDto } from "./dto/send-forgot-password.dto";
 import { ForgotPasswordVerify } from "src/forgot-password-verify/forgot-password-verify.entity";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
+import { UserRepository } from "src/user/user.repository";
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -30,6 +31,7 @@ export class AuthController {
         private readonly refreshTokenService: RefreshTokenService,
         private readonly verifyMailService: VerifyMailService,
         private readonly forgotPasswordService: ForgotPasswordService,
+        private readonly userRepository: UserRepository,
     ) { }
 
     @Public()
@@ -202,7 +204,7 @@ export class AuthController {
         };
 
         const userGmail = req.user
-        const user = await this.userService.userGetByEmail(userGmail.email)
+        const user = await this.userRepository.findOneByEmail(userGmail.email)
 
         if (user) {
             if (user.isVerified === false) {
@@ -210,7 +212,7 @@ export class AuthController {
             }
             return {
                 access_token: await this.authServices.generateToken(user),
-                refresh_token: await this.refreshTokenService.createRefreshToken(user.id, deviceInfo)
+                refresh_token: (await this.refreshTokenService.createRefreshToken(user.id, deviceInfo)).token
             }
         } else {
 
@@ -226,12 +228,13 @@ export class AuthController {
             }
 
             const newUser = await this.userService.createUser(createUser)
+            await this.userService.defaulProfile(newUser.id, newUser.fullName)
 
             await this.userService.updateUserisVerified(newUser.email)
 
             return {
                 access_token: await this.authServices.generateToken(newUser),
-                refresh_token: await this.refreshTokenService.createRefreshToken(newUser.id, deviceInfo)
+                refresh_token: (await this.refreshTokenService.createRefreshToken(newUser.id, deviceInfo)).token
             }
         }
     }

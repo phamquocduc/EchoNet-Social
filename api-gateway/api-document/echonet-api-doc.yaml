@@ -113,6 +113,8 @@ paths:
       tags:
         - Auth
       summary: change password.
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -161,7 +163,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Role'
 
-  /profile:
+  /profile/personal:
     get:
       tags:
         - Profile
@@ -176,7 +178,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Profile'
 
-  /profile/update-profile:
+  /profile/personal/update-profile:
     put:
       tags:
         - Profile
@@ -197,7 +199,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Profile'
 
-  /profile/update/avatar:
+  /profile/personal/update/avatar:
     put:
       tags:
         - Profile
@@ -228,7 +230,7 @@ paths:
         '500':
           description: Internal server error
 
-  /profile/update/cover-photo:
+  /profile/personal/update/cover-photo:
     put:
       tags:
         - Profile
@@ -258,6 +260,187 @@ paths:
           description: No file provided or invalid file type
         '500':
           description: Internal server error
+
+  /profile/friendship/request/{userId}:
+    post:
+      tags:
+        - profile/friendship
+      summary: Send friend request
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user to send request to
+      responses:
+        '200':
+          description: Friend request sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Friend request sent
+
+  /profile/friendship/accept/{userId}:
+    post:
+      tags:
+        - profile/friendship
+      summary: Accept friend request
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user who sent the friend request
+      responses:
+        '200':
+          description: Friend request accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Friend request accepted
+
+  /profile/friendship/reject/{userId}:
+    delete:
+      tags:
+        - profile/friendship
+      summary: Reject friend request
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user who sent the friend request
+      responses:
+        '200':
+          description: Friend request rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Friend request rejected
+
+  /profile/friendship/cancel/{userId}:
+    delete:
+      tags:
+        - profile/friendship
+      summary: Cancel friend request
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Friend request cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Friend request cancelled
+
+  /profile/friendship/unfriend/{userId}:
+    delete:
+      tags:
+        - profile/friendship
+      summary: Unfriend user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the friend to remove
+      responses:
+        '200':
+          description: Unfriended successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unfriended successfully
+
+  /profile/friendship/follow/{userId}:
+    post:
+      tags:
+        - profile/friendship
+      summary: Follow public page
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user/page to follow
+      responses:
+        '200':
+          description: Page followed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Page followed
+
+  /profile/friendship/unfollow/{userId}:
+    delete:
+      tags:
+        - profile/friendship
+      summary: Unfollow public page
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user/page to unfollow
+      responses:
+        '200':
+          description: Page unfollowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Page unfollowed
 
 
 components:

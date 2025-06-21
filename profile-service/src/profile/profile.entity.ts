@@ -1,4 +1,5 @@
 import { Node } from "neo4j-driver";
+import { EProfileType } from "src/enum/profile-type.enum";
 
 export class Profile {
     constructor(private readonly node: Node) { }
@@ -13,6 +14,11 @@ export class Profile {
 
     getFullName(): string {
         return (<Record<string, any>>this.node.properties).fullname
+    }
+
+    getProfileType(): EProfileType {
+        const type = (<Record<string, any>>this.node.properties).profileType;
+        return type || EProfileType.PERSONAL_PAGE;
     }
 
     getDob(): string {
@@ -59,6 +65,7 @@ export class Profile {
         const {
             avatar,
             fullname,
+            profileType,
             dob,
             gender,
             userid,
@@ -84,7 +91,8 @@ export class Profile {
             workPlace: workPlace,
             relationship: relationship,
             userid: userid,
-            id: id
+            id: id,
+            profileType: profileType || EProfileType.PERSONAL_PAGE,
         };
     }
 }

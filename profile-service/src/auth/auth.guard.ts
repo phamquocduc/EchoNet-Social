@@ -2,6 +2,7 @@ import {
     CanActivate,
     ExecutionContext,
     ForbiddenException,
+    Inject,
     Injectable,
     UnauthorizedException,
 } from '@nestjs/common';
@@ -10,12 +11,14 @@ import { ERole } from 'src/enum/role.enum';
 import { ROLE_KEY } from './decorators/role.decorator';
 import { AuthService } from './auth.service';
 import { IS_PUBLIC_KEY } from './decorators/isPublic.decorator';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(
         private reflector: Reflector,
-        private readonly authService: AuthService
+        @Inject('IDENTITY_SERVICE') private readonly identityClient: ClientProxy,
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -41,7 +44,13 @@ export class AuthGuard implements CanActivate {
             throw new UnauthorizedException();
         }
 
-        const payload = await this.authService.getPayload(token);
+        const _payload = await firstValueFrom(this.identityClient.send({ cmd: 'validate_token' }, { token }))
+        const payload = _payload?.payload
+
+        if (!payload || !payload.valid && payload.code === 401) {
+            throw new UnauthorizedException();
+        }
+
         request['user'] = payload;
 
         const roleToken = payload?.role;
