@@ -65,4 +65,8 @@ export class UserService {
         const hashPassword = await bcrypt.hash(newPassword, 10)
         await this.userRepository.userResetPassword(email, hashPassword)
     }
+
+    async checkUserExited(userId: number): Promise<boolean> {
+        return await this.userRepository.checkUserExitedById(userId);
+    }
 }

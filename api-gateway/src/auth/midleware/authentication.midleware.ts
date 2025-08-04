@@ -16,6 +16,7 @@ export class AuthMiddleware implements NestMiddleware {
     '/auth/verify-email',
     '/auth/forgot-password/:email',
     '/auth/reset-password',
+    '/post'
   ];
 
   constructor(

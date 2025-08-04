@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 import { IS_PUBLIC_KEY } from './decorators/isPublic.decorator';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { console } from 'inspector';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -51,6 +52,16 @@ export class AuthGuard implements CanActivate {
             throw new UnauthorizedException();
         }
         request['user'] = payload;
+
+        const userId = payload.sub;
+        console.log('User ID:', userId);
+
+        const check_user_exited = await firstValueFrom(this.identityClient.send({ cmd: 'check_user_exited' }, { userId }))
+        console.log('check user:', check_user_exited);
+
+        if (!check_user_exited) {
+            throw new UnauthorizedException('User does not exist');
+        }
 
         const roleToken = payload?.role;
 

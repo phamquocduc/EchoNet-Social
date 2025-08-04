@@ -85,4 +85,14 @@ export class UserRepository {
         Object.assign(user, { password: newPassword })
         return await this.userRepository.save(user)
     }
+
+    async checkUserExitedById(userId: number): Promise<boolean> {
+        const user = await this.userRepository.findOne({
+            where: {
+                id: userId
+            }
+        });
+
+        return !!user;
+    }
 }

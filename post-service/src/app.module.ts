@@ -9,10 +9,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostModule } from './post/post.module';
 import { ReactionModule } from './reaction/reaction.module';
 import { CommentModule } from './comment/comment.module';
-import { Post } from './post/post.entity';
+import { PostEntity } from './post/post.entity';
 import { Comment } from './comment/comment.entity';
 import { Reaction } from './reaction/reaction.entity';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { MediaModule } from './media/media.module';
+import { Media } from './media/media.entity';
 
 @Module({
   imports: [
@@ -33,9 +35,10 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       password: process.env.PG_PASSWORD,
       database: process.env.PG_DB,
       entities: [
-        Post,
+        PostEntity,
         Comment,
-        Reaction
+        Reaction,
+        Media
       ],
       synchronize: true,
     }),
@@ -43,7 +46,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     PostModule,
     ReactionModule,
     CommentModule,
-    CloudinaryModule
+    CloudinaryModule,
+    MediaModule
   ],
   controllers: [AppController],
   providers: [AppService,

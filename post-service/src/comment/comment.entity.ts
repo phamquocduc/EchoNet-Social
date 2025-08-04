@@ -1,23 +1,23 @@
-import { Post } from "src/post/post.entity";
+import { PostEntity } from "src/post/post.entity";
 import { Reaction } from "src/reaction/reaction.entity";
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Comment {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+    @PrimaryGeneratedColumn()
+    id: number;
 
     @Column()
     content: string;
 
     @Column()
-    userId: string;
+    userId: number;
 
     @Column({ nullable: true })
     imageUrl: string;
 
-    @ManyToOne(() => Post, post => post.comments)
-    post: Post;
+    @ManyToOne(() => PostEntity, post => post.comments)
+    post: PostEntity;
 
     @OneToMany(() => Reaction, reaction => reaction.comment)
     reactions: Reaction[];
@@ -25,9 +25,12 @@ export class Comment {
     @ManyToOne(() => Comment, comment => comment.children, { nullable: true })
     parent: Comment;
 
-    @OneToMany(() => Comment, comment => comment.parent)
+    @OneToMany(() => Comment, comment => comment.parent, { nullable: true })
     children: Comment[];
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

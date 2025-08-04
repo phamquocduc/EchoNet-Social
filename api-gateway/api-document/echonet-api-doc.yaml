@@ -442,6 +442,86 @@ paths:
                     type: string
                     example: Page unfollowed
 
+  /feed/post:
+    get:
+      tags:
+        - Post
+      summary: Get all posts
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      tags:
+        - Post
+      summary: Create a new post with media
+      description: Upload a post with content and multiple media files (images or videos).
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: 'Today was a great day!'
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Array of media files (JPG, PNG, WEBP, MP4, etc.)
+      responses:
+        '201':
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Invalid file or missing content
+        '500':
+          description: Internal server error
+  
+  /feed/comment:
+    post:
+      tags:
+        - Comment
+      summary: Create a new comment with image attachment
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "Great post!"
+                postId:
+                  type: integer
+                  example: 42
+                parentCommentId:
+                  type: integer 
+                  example: 10
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Comment created successfully
 
 components:
   securitySchemes:
@@ -622,3 +702,63 @@ components:
           type: string
         confirmNewPassword:
           type: string
+
+    Media:
+      type: object
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+          example: https://res.cloudinary.com/demo/image/upload/v123456/media.jpg
+        type:
+          type: string
+          enum: [IMAGE, VIDEO]
+
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+          example: "123456"
+        content:
+          type: string
+          example: "Today was a great day!"
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+        comments:
+          type: array
+          items:
+            type: object
+            description: Comment preview or ID
+        reactions:
+          type: array
+          items:
+            type: object
+            description: Reaction preview or ID
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-06-14T12:34:56Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-06-14T14:30:00Z"
+
+    CommentCreateDto:
+      type: object
+      properties:
+        postId:
+          type: integer
+          example: 123
+        content:
+          type: string
+          example: 'This is a comment'
+        parentCommentId:
+          type: integer
+          example: 456
+    

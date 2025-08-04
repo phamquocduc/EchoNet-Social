@@ -26,7 +26,10 @@ async function bootstrap() {
 
   app.use('/profile', authMiddleware.use.bind(authMiddleware), proxy(process.env.PROFILE_PROXY || 'http://localhost:3002'));
 
-  app.use('/feed', authMiddleware.use.bind(authMiddleware), proxy(process.env.POST_PROXY || 'http://localhost:3003'));
+  app.use('/feed', authMiddleware.use.bind(authMiddleware), proxy(process.env.POST_PROXY || 'http://localhost:3003', {
+    proxyReqBodyDecorator: (bodyContent, srcReq) => bodyContent,
+    limit: '20mb',
+  }));
 
   const swaggerDocument = yaml.load(fs.readFileSync('api-document/echonet-api-doc.yaml', 'utf8')) as OpenAPIObject;
 

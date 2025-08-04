@@ -10,12 +10,14 @@ import { ERole } from 'src/enum/role.enum';
 import { ROLE_KEY } from './decorators/role.decorator';
 import { AuthService } from './auth.service';
 import { IS_PUBLIC_KEY } from './decorators/isPublic.decorator';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(
         private reflector: Reflector,
-        private readonly authService: AuthService
+        private readonly authService: AuthService,
+        private readonly userService: UserService
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -43,6 +45,16 @@ export class AuthGuard implements CanActivate {
 
         const payload = await this.authService.getPayload(token);
         request['user'] = payload;
+
+        const userId = payload.sub;
+        console.log('User ID:', userId);
+
+        const check_user_exited = await this.userService.checkUserExited(userId);
+        console.log('check user:', check_user_exited);
+
+        if (!check_user_exited) {
+            throw new UnauthorizedException('User does not exist');
+        }
 
         const roleToken = payload?.role;
 

@@ -1,23 +1,22 @@
 import { Comment } from "src/comment/comment.entity";
+import { Media } from "src/media/media.entity";
 import { Reaction } from "src/reaction/reaction.entity";
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, Index, UpdateDateColumn } from "typeorm";
 
 @Entity()
-export class Post {
+export class PostEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
-    userId: string;
+    @Index()
+    userId: number;
 
-    @Column('text')
+    @Column('text', { nullable: true })
     content: string;
 
-    @Column('json', { nullable: true })
-    imageUrls: string[];
-
-    @Column({ nullable: true })
-    videoUrl: string;
+    @OneToMany(() => Media, media => media.post, { cascade: true })
+    media: Media[];
 
     @OneToMany(() => Comment, comment => comment.post)
     comments: Comment[];
@@ -25,7 +24,9 @@ export class Post {
     @OneToMany(() => Reaction, reaction => reaction.post)
     reactions: Reaction[];
 
-
     @CreateDateColumn()
     createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

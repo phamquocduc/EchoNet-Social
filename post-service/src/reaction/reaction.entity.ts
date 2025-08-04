@@ -1,12 +1,12 @@
 import { Comment } from "src/comment/comment.entity";
 import { ReactionType } from "src/enum/reaction-type.enum";
-import { Post } from "src/post/post.entity";
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from "typeorm";
+import { PostEntity } from "src/post/post.entity";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Reaction {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   userId: string;
@@ -17,12 +17,15 @@ export class Reaction {
   })
   type: ReactionType;
 
-  @ManyToOne(() => Post, post => post.reactions, { nullable: true })
-  post: Post;
+  @ManyToOne(() => PostEntity, post => post.reactions, { nullable: true })
+  post: PostEntity;
 
   @ManyToOne(() => Comment, comment => comment.reactions, { nullable: true })
   comment: Comment;
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

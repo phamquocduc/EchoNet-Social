@@ -53,6 +53,16 @@ export class AuthGuard implements CanActivate {
 
         request['user'] = payload;
 
+        const userId = payload.sub;
+        console.log('User ID:', userId);
+
+        const check_user_exited = await firstValueFrom(this.identityClient.send({ cmd: 'check_user_exited' }, { userId }))
+        console.log('check user:', check_user_exited);
+
+        if (!check_user_exited) {
+            throw new UnauthorizedException('User does not exist');
+        }
+
         const roleToken = payload?.role;
 
         if (role && role !== roleToken) {
