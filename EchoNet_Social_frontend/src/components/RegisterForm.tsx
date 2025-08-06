@@ -1,6 +1,8 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import logo from '../assets/ECSlogo.png'
+import { register } from "../api/AuthApi"
+import type { RegisterDTO } from "../types/AuthType"
 
 export default function RegisterForm() {
   const [fullName, setFullName] = useState("")
@@ -9,14 +11,25 @@ export default function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (password !== confirmPassword) {
       alert("Mật khẩu nhập lại không khớp!")
       return
     }
-    alert(`Register with ${fullName} / ${email} / ${password}`)
+    const data: RegisterDTO = { email, password, confirmPassword, fullname: fullName }
+    try {
+      const res = await register(data)
+      if (res.status === 201) {
+        navigate("/verifyemail", { state: { email } })
+      } else {
+        alert("Đăng ký thất bại: " + res.data.message)
+      }
+    } catch (err: any) {
+      alert("Đăng ký thất bại: " + (err?.response?.data?.message || "Lỗi hệ thống"))
+    }
   }
 
   return (

@@ -2,16 +2,31 @@ import { useState } from "react"
 import logo from '../assets/ECSlogo.png'
 import googleLogo from '../assets/googleLogo.svg'
 import { Link } from "react-router-dom"
+import { login } from "../api/AuthApi"
+import { setAccessToken, setRefreshToken } from "../utils/token"
 
 export default function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Call API login here
-    alert(`Login with ${email} / ${password}`)
+    setLoading(true)
+    setError("")
+    try {
+      const res = await login(email, password)
+      const { accessToken, refreshToken } = res.data
+      setAccessToken(accessToken)
+      setRefreshToken(refreshToken)
+      console.log("Đăng nhập thành công!")
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Đăng nhập thất bại")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGoogleLogin = () => {
@@ -31,6 +46,11 @@ export default function LoginForm() {
         <p className="text-gray-500 text-sm">Chào mừng bạn quay trở lại!</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div className="mb-2 text-red-500 text-sm text-center">
+            {error}
+          </div>
+        )}
         <div>
           <label className="block text-gray-700 mb-1 font-medium">Email</label>
           <input
@@ -73,8 +93,9 @@ export default function LoginForm() {
         <button
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
+          disabled={loading}
         >
-          Đăng nhập
+          {loading ? "Đang xử lý..." : "Đăng nhập"}
         </button>
       </form>
       <button
