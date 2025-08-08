@@ -23,6 +23,7 @@ import { ForgotPasswordVerify } from "src/forgot-password-verify/forgot-password
 import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { UserRepository } from "src/user/user.repository";
+import { ResendVerifyMailRequestDto } from "./dto/resend-verify-mail-request.dto";
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -127,16 +128,13 @@ export class AuthController {
 
     @Post('resend-verify-email')
     @Public()
-    async resendVerifyEmail(@Body() verifyMailReqDto: VerifyMailRequestDto): Promise<VerifyEmail> {
+    async resendVerifyEmail(@Body() verifyMailReqDto: ResendVerifyMailRequestDto): Promise<VerifyEmail> {
         const DateNow = new Date(Date.now())
 
-        const verifyMail = await this.verifyMailService.findLastestVerifyEmailByEmail(verifyMailReqDto.email)
-        if (verifyMail) {
-            if (verifyMail.used === true) {
+        const user = await this.userService.userGetByEmail(verifyMailReqDto.email)
+        if (user) {
+            if (user.isVerified === true) {
                 throw new BadRequestException('Email already verified')
-            }
-            if (verifyMail.expiresAt > DateNow) {
-                throw new BadRequestException('Code not expired yet')
             }
         }
 
@@ -148,6 +146,12 @@ export class AuthController {
             used: false,
         }
 
+        const verifyEmailDto: VerifyMailRequestDto = {
+            email: verifyEmailEntity.email,
+            code: verifyEmailEntity.code,
+        }
+
+        await this.authServices.verifyEmail(verifyEmailDto)
         return await this.verifyMailService.createVerifyEmail(verifyEmailEntity)
     }
 
