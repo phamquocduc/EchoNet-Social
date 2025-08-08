@@ -2,7 +2,7 @@ import { useState } from "react"
 import logo from '../assets/ECSlogo.png'
 import googleLogo from '../assets/googleLogo.svg'
 import { Link } from "react-router-dom"
-import { login } from "../api/AuthApi"
+import { googleLogin, login } from "../api/AuthApi"
 import { setAccessToken, setRefreshToken } from "../utils/token"
 
 export default function LoginForm() {
@@ -18,9 +18,9 @@ export default function LoginForm() {
     setError("")
     try {
       const res = await login(email, password)
-      const { accessToken, refreshToken } = res.data
-      setAccessToken(accessToken)
-      setRefreshToken(refreshToken)
+      const { access_token, refresh_token } = res.data?.data
+      setAccessToken(access_token)
+      setRefreshToken(refresh_token)
       console.log("Đăng nhập thành công!")
     } catch (err: any) {
       setError(err?.response?.data?.message || "Đăng nhập thất bại")
@@ -30,8 +30,7 @@ export default function LoginForm() {
   }
 
   const handleGoogleLogin = () => {
-    // TODO: Thực hiện đăng nhập Google tại đây
-    alert("Đăng nhập bằng Google")
+    googleLogin()
   }
 
   return (
