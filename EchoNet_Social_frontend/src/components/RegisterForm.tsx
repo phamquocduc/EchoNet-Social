@@ -11,12 +11,16 @@ export default function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [errorConfirm, setErrorConfirm] = useState("")
+  const [error, setError] = useState("")
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
+    setErrorConfirm("")
     if (password !== confirmPassword) {
-      alert("Mật khẩu nhập lại không khớp!")
+      setErrorConfirm("Mật khẩu nhập lại không khớp!")
       return
     }
     const data: RegisterDTO = { email, password, confirmPassword, fullname: fullName }
@@ -25,10 +29,10 @@ export default function RegisterForm() {
       if (res.status === 201) {
         navigate("/verifyemail", { state: { email } })
       } else {
-        alert("Đăng ký thất bại: " + res.data.message)
+        setError("Đăng ký thất bại")
       }
     } catch (err: any) {
-      alert("Đăng ký thất bại: " + (err?.response?.data?.message || "Lỗi hệ thống"))
+      setError("Đăng ký thất bại")
     }
   }
 
@@ -44,6 +48,9 @@ export default function RegisterForm() {
         <p className="text-gray-500 text-sm">Tạo tài khoản mới để bắt đầu!</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div className="mb-2 text-red-500 text-sm text-center">{error}</div>
+        )}
         <div>
           <label className="block text-gray-700 mb-1 font-medium">Họ và tên</label>
           <input
@@ -92,10 +99,13 @@ export default function RegisterForm() {
           <div className="relative">
             <input
               type={showConfirmPassword ? "text" : "password"}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                errorConfirm ? "border-red-500" : "border-gray-300"
+              }`}
               placeholder="Nhập lại mật khẩu"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
+              onFocus={() => setErrorConfirm("")}
               required
             />
             <button
@@ -107,10 +117,15 @@ export default function RegisterForm() {
               {showConfirmPassword ? "Ẩn" : "Hiện"}
             </button>
           </div>
+          <div className="h-[10px] mt-1">
+            {errorConfirm && (
+              <span className="text-red-500 text-xs">{errorConfirm}</span>
+            )}
+          </div>
         </div>
         <button
           type="submit"
-          className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
+          className="w-full cursor-pointer mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
         >
           Đăng ký
         </button>

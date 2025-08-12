@@ -53,9 +53,9 @@ export default function VerifyEmailPage() {
         const { access_token, refresh_token } = res.data?.data
         setAccessToken(access_token)
         setRefreshToken(refresh_token)
-        // TODO: chuyển trang sau khi xác thực thành công
+        navigate("/")
       } catch (err: any) {
-        alert(err?.response?.data?.message || "Xác thực thất bại")
+        alert("Xác thực thất bại")
       }
     }
   }

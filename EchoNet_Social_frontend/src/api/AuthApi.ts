@@ -1,5 +1,5 @@
 import axios from "axios"
-import type { RegisterDTO } from "../types/AuthType"
+import type { RegisterDTO, ResetPasswordDto } from "../types/AuthType"
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -25,4 +25,12 @@ export async function googleRedirect(search: string) {
 
 export async function resendVerificationEmail(email: string) {
     return axios.post(`${API_URL}/identity/auth/resend-verify-email`, { email })
+}
+
+export async function forgotPasswordEmail(email: string) {
+    return axios.post(`${API_URL}/identity/auth/forgot-password/${email}`)
+}
+
+export async function resetPasswordEmail(resetPasswordDto: ResetPasswordDto) {
+    return axios.post(`${API_URL}/identity/auth/reset-password`, resetPasswordDto)
 }

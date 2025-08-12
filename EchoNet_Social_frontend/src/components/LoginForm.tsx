@@ -1,7 +1,7 @@
 import { useState } from "react"
 import logo from '../assets/ECSlogo.png'
 import googleLogo from '../assets/googleLogo.svg'
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { googleLogin, login } from "../api/AuthApi"
 import { setAccessToken, setRefreshToken } from "../utils/token"
 
@@ -11,6 +11,7 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,6 +23,7 @@ export default function LoginForm() {
       setAccessToken(access_token)
       setRefreshToken(refresh_token)
       console.log("Đăng nhập thành công!")
+      navigate("/")
     } catch (err: any) {
       setError(err?.response?.data?.message || "Đăng nhập thất bại")
     } finally {
@@ -87,11 +89,11 @@ export default function LoginForm() {
             <input type="checkbox" id="remember" className="mr-2" />
             <label htmlFor="remember" className="text-gray-600 text-sm">Ghi nhớ đăng nhập</label>
           </div>
-          <a href="#" className="text-blue-500 text-sm hover:underline">Quên mật khẩu?</a>
+          <Link to="/forgot-password" className="text-blue-500 text-sm hover:underline">Quên mật khẩu?</Link>
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
+          className="w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
           disabled={loading}
         >
           {loading ? "Đang xử lý..." : "Đăng nhập"}
@@ -100,7 +102,7 @@ export default function LoginForm() {
       <button
         type="button"
         onClick={handleGoogleLogin}
-        className="flex items-center justify-center w-full mt-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+        className="flex cursor-pointer items-center justify-center w-full mt-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
       >
         <img src={googleLogo} alt="Google" className="w-5 h-5 mr-2 rounded" />
         <span className="text-gray-700 font-medium">Đăng nhập với Google</span>
