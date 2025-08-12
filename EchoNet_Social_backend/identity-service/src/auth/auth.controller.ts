@@ -88,17 +88,17 @@ export class AuthController {
 
     @Post('reset-password')
     @Public()
-    async resetPassword(@Body() restPasswordDto: ResetPasswordDto): Promise<void> {
+    async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<void> {
 
-        const forgotPassword = await this.forgotPasswordService.findLastestForgotPasswordByToken(restPasswordDto.token);
-
-        await this.forgotPasswordService.updateForgotPassword(forgotPassword.id);
-
-        if (restPasswordDto.newPassword !== restPasswordDto.confirmNewPassword) {
+        if (resetPasswordDto.newPassword !== resetPasswordDto.confirmNewPassword) {
             throw new BadRequestException('New password and confirm password do not match');
         }
 
-        await this.userService.userResetPassword(forgotPassword.email, restPasswordDto.newPassword);
+        const forgotPassword = await this.forgotPasswordService.findLastestForgotPasswordByToken(resetPasswordDto.token);
+
+        await this.forgotPasswordService.updateForgotPassword(forgotPassword.id);
+
+        await this.userService.userResetPassword(forgotPassword.email, resetPasswordDto.newPassword);
     }
 
     @Post('register')
