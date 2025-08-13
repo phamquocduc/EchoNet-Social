@@ -14,6 +14,7 @@ export class AuthMiddleware implements NestMiddleware {
     '/auth/google/redirect',
     '/auth/register',
     '/auth/verify-email',
+    '/auth/resend-verify-email',
     '/auth/forgot-password/:email',
     '/auth/reset-password',
     '/post'
